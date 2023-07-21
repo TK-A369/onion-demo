@@ -1,0 +1,3 @@
+[submodule "OnionEngine"]
+	path = OnionEngine
+	url = https://github.com/TK-A369/onion-engine.git
