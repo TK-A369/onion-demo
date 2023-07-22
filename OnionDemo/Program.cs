@@ -1,11 +1,23 @@
-﻿using OnionEngine.Core;
+using OnionEngine.Core;
 using OnionEngine.Graphics;
 using OnionEngine.Physics;
 using OnionEngine.IoC;
 using OnionEngine.DataTypes;
+using OnionEngine.Network;
+
+public class TestNetMessage : NetMessage
+{
+	public string content = "";
+
+	public override string ToString()
+	{
+		return "content: \"" + content + "\"";
+	}
+}
 
 class Program
 {
+
 	public static void Main(string[] args)
 	{
 		// Turn on debug mode
@@ -32,6 +44,17 @@ class Program
 
 		Console.WriteLine(gameManager.DumpEntitiesAndComponents());
 		Console.WriteLine();
+
+		// Serialization test
+		NetworkMessagesSerializer netMsgSerializer = new NetworkMessagesSerializer();
+		netMsgSerializer.RegisterMessageType(typeof(TestNetMessage));
+		TestNetMessage testMsg = new TestNetMessage();
+		testMsg.content = "Hello World!";
+		string serializedMsg = netMsgSerializer.Serialize(testMsg);
+		Console.WriteLine("Serialized message:\n" + serializedMsg);
+
+		var (deserializedType, deserializedMsg) = netMsgSerializer.Deserialize(serializedMsg);
+		Console.WriteLine("Deserialized message of type " + deserializedType + ":\n" + deserializedMsg);
 
 		using (Window win = IoCManager.CreateInstance<Window>(new object[] { 800, 600, "Onion engine demo" }))
 		{
