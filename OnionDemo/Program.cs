@@ -18,13 +18,13 @@ public class TestNetMessage : NetMessage
 class Program
 {
 
-	public static void Main(string[] args)
+	public static void Main(string[] _)
 	{
 		// Turn on debug mode
 		GameManager.debugMode = true;
 
 		// Create GameManager
-		GameManager gameManager = new GameManager();
+		GameManager gameManager = new();
 
 		// Register component types
 		gameManager.AutoRegisterComponentTypes();
@@ -38,18 +38,21 @@ class Program
 		gameManager.prototypeManager.AutoregisterPrototypeTypes();
 		// gameManager.prototypeManager.LoadPrototypes(File.ReadAllText("Resources/Prototypes/Test1.xml"));
 		// gameManager.prototypeManager.LoadPrototypes(File.ReadAllText("Resources/Prototypes/Test2.json"));
-		gameManager.prototypeManager.LoadPrototypes(File.ReadAllText(
-			System.IO.Path.Join(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "Resources/Prototypes/Test2.json")));
+		// gameManager.prototypeManager.LoadPrototypes(File.ReadAllText(
+		// 	System.IO.Path.Join(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "Resources/Prototypes/Test2.json")));
+		gameManager.prototypeManager.LoadPrototypesFromDirectory(@"Resources\Prototypes");
 		Console.WriteLine();
 
 		Console.WriteLine(gameManager.DumpEntitiesAndComponents());
 		Console.WriteLine();
 
 		// Serialization test
-		NetworkMessagesSerializer netMsgSerializer = new NetworkMessagesSerializer();
+		NetworkMessagesSerializer netMsgSerializer = new();
 		netMsgSerializer.RegisterMessageType(typeof(TestNetMessage));
-		TestNetMessage testMsg = new TestNetMessage();
-		testMsg.content = "Hello World!";
+		TestNetMessage testMsg = new()
+		{
+			content = "Hello World!"
+		};
 		string serializedMsg = netMsgSerializer.Serialize(testMsg);
 		Console.WriteLine("Serialized message:\n" + serializedMsg);
 
@@ -63,24 +66,32 @@ class Program
 				// Create and remove some entities and components
 				Int64 entity1 = gameManager.AddEntity("entity1");
 
-				RenderComponent renderComponent = new RenderComponent();
-				renderComponent.entityId = entity1;
+				RenderComponent renderComponent = new()
+				{
+					entityId = entity1
+				};
 				gameManager.AddComponent(renderComponent);
 
-				PositionComponent positionComponent = new PositionComponent();
-				positionComponent.entityId = entity1;
-				positionComponent.position = new Vec2<double>(0, 0);
+				PositionComponent positionComponent = new()
+				{
+					entityId = entity1,
+					position = new Vec2<double>(0, 0)
+				};
 				gameManager.AddComponent(positionComponent);
 
-				RotationComponent rotationComponent = new RotationComponent();
-				rotationComponent.entityId = entity1;
-				rotationComponent.rotation = 0;
+				RotationComponent rotationComponent = new()
+				{
+					entityId = entity1,
+					rotation = 0
+				};
 				gameManager.AddComponent(rotationComponent);
 
-				SpriteComponent spriteComponent = new SpriteComponent();
-				spriteComponent.entityId = entity1;
-				spriteComponent.textureName = "human-1";
-				spriteComponent.size = new Vec2<double>(1, 1);
+				SpriteComponent spriteComponent = new()
+				{
+					entityId = entity1,
+					textureName = "human-1",
+					size = new Vec2<double>(1, 1)
+				};
 				gameManager.AddComponent(spriteComponent);
 			});
 
