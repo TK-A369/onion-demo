@@ -88,6 +88,22 @@ class Program
 				};
 				gameManager.AddComponent(rotationComponent);
 
+				PhysicalBodyComponent physicalBodyComponent = new()
+				{
+					entityId = entity1,
+					mass = 1,
+					velocity = new(0.001, 0)
+				};
+				gameManager.AddComponent(physicalBodyComponent);
+
+				RigidBodyComponent rigidBodyComponent = new()
+				{
+					entityId = entity1,
+					momentOfInertia = 1,
+					angularVelocity = 0.005
+				};
+				gameManager.AddComponent(rigidBodyComponent);
+
 				SpriteComponent spriteComponent = new()
 				{
 					entityId = entity1,
