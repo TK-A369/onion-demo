@@ -1,0 +1,8 @@
+{
+    "offscreen-render-target-1": {
+        "type": "OffscreenRenderTarget",
+        "name": "offscreen-render-target-1",
+        "width": 256,
+        "height": 256
+    }
+}
