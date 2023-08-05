@@ -1,0 +1,14 @@
+{
+    "basic-shader": {
+        "type": "Shader",
+        "name": "basic-shader",
+        "vertexPath": "Resources/Shaders/basic_shader.vert",
+        "fragmentPath": "Resources/Shaders/basic_shader.frag"
+    },
+    "textured-shader": {
+        "type": "Shader",
+        "name": "textured-shader",
+        "vertexPath": "Resources/Shaders/textured_shader.vert",
+        "fragmentPath": "Resources/Shaders/textured_shader.frag"
+    }
+}

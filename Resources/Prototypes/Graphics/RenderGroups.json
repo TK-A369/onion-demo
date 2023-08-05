@@ -1,0 +1,37 @@
+{
+    "basic-group": {
+        "type": "RenderGroup",
+        "name": "basic-group",
+        "shaderName": "basic-shader",
+        "vertexAttributeDescriptors": [
+            {
+                "type": "Float",
+                "valuesCount": 3
+            },
+            {
+                "type": "Float",
+                "valuesCount": 3
+            }
+        ]
+    },
+    "textured-group": {
+        "type": "RenderGroup",
+        "name": "textured-group",
+        "shaderName": "textured-shader",
+        "vertexAttributeDescriptors": [
+            {
+                "type": "Float",
+                "valuesCount": 3
+            },
+            {
+                "type": "Float",
+                "valuesCount": 4
+            },
+            {
+                "type": "Float",
+                "valuesCount": 2
+            }
+        ],
+        "textureAtlasName": "texture-atlas-1"
+    }
+}
