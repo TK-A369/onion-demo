@@ -176,8 +176,6 @@ class Program
 				win.shaders["textured-shader"].SetUniform1i("texture0", 0);
 				GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
 
-
-
 				win.Context.SwapBuffers();
 			};
 
