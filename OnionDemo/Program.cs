@@ -115,6 +115,27 @@ class Program
 
 			win.renderCallback = () =>
 			{
+				HashSet<Int64> eyeComponentsIds = gameManager.QueryEntitiesOwningComponents(new HashSet<Type>() { typeof(EyeComponent) });
+				Mat<float> eyeMatrix;
+				if (eyeComponentsIds.Count >= 1)
+				{
+					Int64 eyeComponentId = eyeComponentsIds.First();
+					EyeComponent eyeComponent = (EyeComponent)gameManager.components[eyeComponentId];
+					eyeMatrix = eyeComponent.GetEyeMatrix();
+				}
+				else
+				{
+					eyeMatrix = Mat<float>.RotationMatrix(0.0);
+				}
+
+				foreach (Shader shader in win.shaders.Values)
+				{
+					shader.Use();
+					shader.SetUniformMat3f("camera", eyeMatrix);
+				}
+				// win.shaders["textured-shader"].Use();
+				// win.shaders["textured-shader"].SetUniformMat3f("camera", eyeMatrix);
+
 				HashSet<Int64> entitiesToRender = gameManager.QueryEntitiesOwningComponents(new HashSet<Type>() { typeof(RenderComponent) });
 				foreach (Int64 entity in entitiesToRender)
 				{
