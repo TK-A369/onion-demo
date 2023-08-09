@@ -133,8 +133,8 @@ class Program
 					shader.Use();
 					shader.SetUniformMat3f("camera", eyeMatrix);
 				}
-				// win.shaders["textured-shader"].Use();
-				// win.shaders["textured-shader"].SetUniformMat3f("camera", eyeMatrix);
+				// win.shaders["shader-textured"].Use();
+				// win.shaders["shader-textured"].SetUniformMat3f("camera", eyeMatrix);
 
 				HashSet<Int64> entitiesToRender = gameManager.QueryEntitiesOwningComponents(new HashSet<Type>() { typeof(RenderComponent) });
 				foreach (Int64 entity in entitiesToRender)
@@ -190,11 +190,11 @@ class Program
 
 				GL.BindVertexArray(win.vertexArrayObject);
 				GL.BindBuffer(BufferTarget.ArrayBuffer, win.vertexBufferObject);
-				win.shaders["textured-shader"].Use();
+				win.shaders["shader-textured"].Use();
 				win.textureAtlases["texture-atlas-1"].Use();
 				win.offscreenRenderTargets["offscreen-render-target-1"].UseTexture();
 				// textures["floor-tile-1"].Use(TextureUnit.Texture0);
-				win.shaders["textured-shader"].SetUniform1i("texture0", 0);
+				win.shaders["shader-textured"].SetUniform1i("texture0", 0);
 				GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
 
 				win.Context.SwapBuffers();
