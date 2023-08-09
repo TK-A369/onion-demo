@@ -2,13 +2,53 @@
     "shader-basic": {
         "type": "Shader",
         "name": "shader-basic",
-        "vertexPath": "Resources/Shaders/basic_shader.vert",
-        "fragmentPath": "Resources/Shaders/basic_shader.frag"
+        "vertexPath": "Resources/Shaders/shader_basic.vert",
+        "fragmentPath": "Resources/Shaders/shader_basic.frag",
+        "vertexAttributeDescriptors": [
+            {
+                "type": "Float",
+                "valuesCount": 3
+            },
+            {
+                "type": "Float",
+                "valuesCount": 3
+            }
+        ]
     },
     "shader-textured": {
         "type": "Shader",
         "name": "shader-textured",
-        "vertexPath": "Resources/Shaders/textured_shader.vert",
-        "fragmentPath": "Resources/Shaders/textured_shader.frag"
+        "vertexPath": "Resources/Shaders/shader_textured.vert",
+        "fragmentPath": "Resources/Shaders/shader_textured.frag",
+        "vertexAttributeDescriptors": [
+            {
+                "type": "Float",
+                "valuesCount": 3
+            },
+            {
+                "type": "Float",
+                "valuesCount": 4
+            },
+            {
+                "type": "Float",
+                "valuesCount": 2
+            }
+        ]
+    },
+    "shader-ui-unicolor": {
+        "type": "Shader",
+        "name": "shader-ui-unicolor",
+        "vertexPath": "Resources/Shaders/shader_ui_unicolor.vert",
+        "fragmentPath": "Resources/Shaders/shader_ui_unicolor.frag",
+        "vertexAttributeDescriptors": [
+            {
+                "type": "Float",
+                "valuesCount": 2
+            },
+            {
+                "type": "Float",
+                "valuesCount": 4
+            }
+        ]
     }
 }

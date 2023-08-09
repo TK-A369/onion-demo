@@ -23,8 +23,9 @@
   </ItemGroup>
   <Target Name="CustomAfterBuild" AfterTargets="Build">
     <Message Text="### AfterBuild ###" Importance="high" />
-    <MakeDir Directories="$(TargetDir)\Resources"
-      Condition=" !Exists('$(TargetDir)\Resources')" />
+    <RemoveDir Directories="$(TargetDir)\Resources" />
+    <MakeDir Directories="$(TargetDir)\Resources" />
+      <!-- Condition=" !Exists('$(TargetDir)\Resources')" /> -->
     <Copy
       SourceFiles="@(ResourcesEngine)"
       DestinationFiles="@(ResourcesEngine->'$(TargetDir)\Resources\%(RecursiveDir)%(Filename)%(Extension)')"

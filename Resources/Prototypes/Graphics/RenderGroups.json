@@ -2,56 +2,18 @@
     "render-group-basic": {
         "type": "RenderGroup",
         "name": "render-group-basic",
-        "shaderName": "shader-basic",
-        "vertexAttributeDescriptors": [
-            {
-                "type": "Float",
-                "valuesCount": 3
-            },
-            {
-                "type": "Float",
-                "valuesCount": 3
-            }
-        ]
+        "shaderName": "shader-basic"
     },
     "render-group-textured": {
         "type": "RenderGroup",
         "name": "render-group-textured",
         "shaderName": "shader-textured",
-        "vertexAttributeDescriptors": [
-            {
-                "type": "Float",
-                "valuesCount": 3
-            },
-            {
-                "type": "Float",
-                "valuesCount": 4
-            },
-            {
-                "type": "Float",
-                "valuesCount": 2
-            }
-        ],
         "textureAtlasName": "texture-atlas-1"
     },
     "render-group-ui-unicolor": {
         "type": "RenderGroup",
         "name": "render-group-ui-unicolor",
         "shaderName": "shader-textured",
-        "vertexAttributeDescriptors": [
-            {
-                "type": "Float",
-                "valuesCount": 3
-            },
-            {
-                "type": "Float",
-                "valuesCount": 4
-            },
-            {
-                "type": "Float",
-                "valuesCount": 2
-            }
-        ],
         "textureAtlasName": "texture-atlas-1"
     }
 }
