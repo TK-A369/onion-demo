@@ -4,6 +4,7 @@ using OnionEngine.Physics;
 using OnionEngine.IoC;
 using OnionEngine.DataTypes;
 using OnionEngine.Network;
+using OnionEngine.UserInterface;
 
 using OpenTK.Graphics.OpenGL4;
 
@@ -111,10 +112,23 @@ class Program
 					size = new Vec2<double>(1, 1)
 				};
 				gameManager.AddComponent(spriteComponent);
+
+				UserInterfaceComponent userInterfaceComponent = new()
+				{
+					entityId = entity1,
+					uiRootControl = IoCManager.CreateInstance<RootControl>(new object[] { })
+				};
+				Frame frame = IoCManager.CreateInstance<Frame>(new object[] { userInterfaceComponent.uiRootControl });
+				frame.backgroundColor = new(0, 1, 0, 1);
+				frame.Position = new(50, 0, 50, 0);
+				frame.Size = new(20, 0.3, 20, 0.3);
+				userInterfaceComponent.uiRootControl.AddChild(frame);
+				gameManager.AddComponent(userInterfaceComponent);
 			});
 
 			win.renderCallback = () =>
 			{
+				// Determine eye location
 				HashSet<Int64> eyeComponentsIds = gameManager.QueryEntitiesOwningComponents(new HashSet<Type>() { typeof(EyeComponent) });
 				Mat<float> eyeMatrix;
 				if (eyeComponentsIds.Count >= 1)
@@ -128,6 +142,7 @@ class Program
 					eyeMatrix = Mat<float>.RotationMatrix(0.0);
 				}
 
+				// Set "camera" uniform in all shaders
 				foreach (Shader shader in win.shaders.Values)
 				{
 					shader.Use();
@@ -136,6 +151,7 @@ class Program
 				// win.shaders["shader-textured"].Use();
 				// win.shaders["shader-textured"].SetUniformMat3f("camera", eyeMatrix);
 
+				// Get list of entities containing data to be rendered
 				HashSet<Int64> entitiesToRender = gameManager.QueryEntitiesOwningComponents(new HashSet<Type>() { typeof(RenderComponent) });
 				foreach (Int64 entity in entitiesToRender)
 				{
@@ -174,11 +190,19 @@ class Program
 					}
 				}
 
+				// Render to default framebuffer - onscreen
+				GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+				GL.Viewport(0, 0, win.width, win.height);
+
+				// Clear
+				GL.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+				GL.Clear(ClearBufferMask.ColorBufferBit);
+
 				win.offscreenRenderTargets["offscreen-render-target-1"].Clear();
-				foreach (RenderGroup renderGroup in win.renderGroups.Values)
-				{
-					renderGroup.Render(win.offscreenRenderTargets["offscreen-render-target-1"]);
-				}
+
+				win.renderGroups["render-group-basic"].Render();
+				win.renderGroups["render-group-textured"].Render(win.offscreenRenderTargets["offscreen-render-target-1"]);
+				win.renderGroups["render-group-ui-unicolor"].Render();
 
 				// Render to default framebuffer - onscreen
 				GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
