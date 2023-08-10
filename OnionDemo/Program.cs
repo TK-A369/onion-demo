@@ -20,6 +20,7 @@ public class TestNetMessage : NetMessage
 
 class Program
 {
+	private static EventSubscriber<object?>? afterLoadSubscriber;
 
 	public static void Main(string[] _)
 	{
@@ -64,7 +65,7 @@ class Program
 
 		using (Window win = IoCManager.CreateInstance<Window>(new object[] { 800, 600, "Onion engine demo" }))
 		{
-			win.afterLoadEvent.RegisterSubscriber((_) =>
+			afterLoadSubscriber = (_) =>
 			{
 				// Create and remove some entities and components
 				Int64 entity1 = gameManager.AddEntity("entity1");
@@ -119,12 +120,13 @@ class Program
 					uiRootControl = IoCManager.CreateInstance<RootControl>(new object[] { })
 				};
 				Frame frame = IoCManager.CreateInstance<Frame>(new object[] { userInterfaceComponent.uiRootControl });
-				frame.backgroundColor = new(0, 1, 0, 1);
-				frame.Position = new(50, 0, 50, 0);
-				frame.Size = new(20, 0.3, 20, 0.3);
+				frame.backgroundColor = new(0, 1, 0, 0.5f);
+				frame.Position = new(0, 0.1, 0, 0.2);
+				frame.Size = new(0, 0.4, 0, 0.6);
 				userInterfaceComponent.uiRootControl.AddChild(frame);
 				gameManager.AddComponent(userInterfaceComponent);
-			});
+			};
+			win.afterLoadEvent.RegisterSubscriber(afterLoadSubscriber);
 
 			win.renderCallback = () =>
 			{
@@ -143,11 +145,11 @@ class Program
 				}
 
 				// Set "camera" uniform in all shaders
-				foreach (Shader shader in win.shaders.Values)
-				{
-					shader.Use();
-					shader.SetUniformMat3f("camera", eyeMatrix);
-				}
+				// foreach (Shader shader in win.shaders.Values)
+				// {
+				// 	shader.Use();
+				// 	shader.SetUniformMat3f("camera", eyeMatrix);
+				// }
 				// win.shaders["shader-textured"].Use();
 				// win.shaders["shader-textured"].SetUniformMat3f("camera", eyeMatrix);
 
@@ -196,7 +198,7 @@ class Program
 
 				// Clear
 				GL.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-				GL.Clear(ClearBufferMask.ColorBufferBit);
+				GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
 				win.offscreenRenderTargets["offscreen-render-target-1"].Clear();
 
@@ -210,7 +212,7 @@ class Program
 
 				// Clear
 				GL.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-				GL.Clear(ClearBufferMask.ColorBufferBit);
+				GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
 				GL.BindVertexArray(win.vertexArrayObject);
 				GL.BindBuffer(BufferTarget.ArrayBuffer, win.vertexBufferObject);
@@ -222,6 +224,8 @@ class Program
 				GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
 
 				win.Context.SwapBuffers();
+
+				Console.WriteLine("Render callback");
 			};
 
 			win.Run();
