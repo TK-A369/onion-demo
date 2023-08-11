@@ -120,8 +120,8 @@ class Program
 					uiRootControl = IoCManager.CreateInstance<RootControl>(new object[] { })
 				};
 				Frame frame = IoCManager.CreateInstance<Frame>(new object[] { userInterfaceComponent.uiRootControl });
-				frame.backgroundColor = new(0, 1, 0, 0.5f);
-				frame.Position = new(0, 0.1, 0, 0.2);
+				frame.backgroundColor = new(1.0f, 1.0f, 1.0f, 0.5f);
+				frame.Position = new(-50, 0.1, 0, 0.2);
 				frame.Size = new(0, 0.4, 0, 0.6);
 				userInterfaceComponent.uiRootControl.AddChild(frame);
 				gameManager.AddComponent(userInterfaceComponent);
@@ -180,7 +180,7 @@ class Program
 					foreach (RenderData renderData in dataToRender)
 					{
 						RenderGroup renderGroup = win.renderGroups[renderData.renderGroup];
-						int indexOffset = renderGroup.vertices.Count / 6;
+						int indexOffset = renderGroup.vertices.Count / renderGroup.shader.vertexDescriptorSize;
 						foreach (float vertex in renderData.vertices)
 						{
 							renderGroup.vertices.Add(vertex);
@@ -204,15 +204,16 @@ class Program
 
 				win.renderGroups["render-group-basic"].Render();
 				win.renderGroups["render-group-textured"].Render(win.offscreenRenderTargets["offscreen-render-target-1"]);
+				// win.renderGroups["render-group-textured"].Render();
+				// GL.Disable(EnableCap.DepthTest);
 				win.renderGroups["render-group-ui-unicolor"].Render();
+				// Console.WriteLine(string.Join(", ", win.renderGroups["render-group-ui-unicolor"].vertices));
+				// Console.WriteLine(string.Join(", ", win.renderGroups["render-group-ui-unicolor"].indices));
+				// GL.Enable(EnableCap.DepthTest);
 
 				// Render to default framebuffer - onscreen
 				GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
 				GL.Viewport(0, 0, win.width, win.height);
-
-				// Clear
-				GL.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-				GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
 				GL.BindVertexArray(win.vertexArrayObject);
 				GL.BindBuffer(BufferTarget.ArrayBuffer, win.vertexBufferObject);

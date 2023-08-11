@@ -13,7 +13,7 @@
     "render-group-ui-unicolor": {
         "type": "RenderGroup",
         "name": "render-group-ui-unicolor",
-        "shaderName": "shader-textured",
+        "shaderName": "shader-ui-unicolor",
         "textureAtlasName": "texture-atlas-1"
     }
 }
