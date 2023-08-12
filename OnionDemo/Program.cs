@@ -119,11 +119,21 @@ class Program
 					entityId = entity1,
 					uiRootControl = IoCManager.CreateInstance<RootControl>(new object[] { })
 				};
-				Frame frame = IoCManager.CreateInstance<Frame>(new object[] { userInterfaceComponent.uiRootControl });
-				frame.backgroundColor = new(1.0f, 1.0f, 1.0f, 0.5f);
-				frame.Position = new(0, 0.1, 0, 0.2);
-				frame.Size = new(0, 0.8, 0, 0.6);
-				userInterfaceComponent.uiRootControl.AddChild(frame);
+				Frame frame1 = IoCManager.CreateInstance<Frame>(new object[] { userInterfaceComponent.uiRootControl });
+				frame1.backgroundColor = new(1.0f, 1.0f, 1.0f, 0.5f);
+				frame1.Position = new(0, 0.1, 0, 0.2);
+				frame1.Size = new(0, 0.4, 0, 0.6);
+				userInterfaceComponent.uiRootControl.AddChild(frame1);
+				Frame frame2 = IoCManager.CreateInstance<Frame>(new object[] { userInterfaceComponent.uiRootControl });
+				frame2.backgroundColor = new(1.0f, 0.5f, 0.0f, 0.5f);
+				frame2.Position = new(50, 0.5, 20, 0.3);
+				frame2.Size = new(-50, 0.4, 0, 0.4);
+				userInterfaceComponent.uiRootControl.AddChild(frame2);
+				Frame frame3 = IoCManager.CreateInstance<Frame>(new object[] { frame1 });
+				frame3.backgroundColor = new(0.0f, 0.2f, 1.0f, 0.5f);
+				frame3.Position = new(-100, 1.0, -100, 1.0);
+				frame3.Size = new(50, 0.0, 50, 0.0);
+				frame1.AddChild(frame3);
 				gameManager.AddComponent(userInterfaceComponent);
 			};
 			win.afterLoadEvent.RegisterSubscriber(afterLoadSubscriber);
@@ -207,8 +217,9 @@ class Program
 				win.renderGroups["render-group-basic"].Render();
 				win.renderGroups["render-group-textured"].Render(win.offscreenRenderTargets["offscreen-render-target-1"]);
 				// win.renderGroups["render-group-textured"].Render();
-				// GL.Disable(EnableCap.DepthTest);
+				GL.DepthFunc(DepthFunction.Lequal);
 				win.renderGroups["render-group-ui-unicolor"].Render();
+				GL.DepthFunc(DepthFunction.Less);
 				// Console.WriteLine(string.Join(", ", win.renderGroups["render-group-ui-unicolor"].vertices));
 				// Console.WriteLine(string.Join(", ", win.renderGroups["render-group-ui-unicolor"].indices));
 
