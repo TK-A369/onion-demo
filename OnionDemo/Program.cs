@@ -121,8 +121,8 @@ class Program
 				};
 				Frame frame = IoCManager.CreateInstance<Frame>(new object[] { userInterfaceComponent.uiRootControl });
 				frame.backgroundColor = new(1.0f, 1.0f, 1.0f, 0.5f);
-				frame.Position = new(-50, 0.1, 0, 0.2);
-				frame.Size = new(0, 0.4, 0, 0.6);
+				frame.Position = new(0, 0.1, 0, 0.2);
+				frame.Size = new(0, 0.8, 0, 0.6);
 				userInterfaceComponent.uiRootControl.AddChild(frame);
 				gameManager.AddComponent(userInterfaceComponent);
 			};
@@ -202,6 +202,8 @@ class Program
 
 				win.offscreenRenderTargets["offscreen-render-target-1"].Clear();
 
+				GL.Enable(EnableCap.DepthTest);
+
 				win.renderGroups["render-group-basic"].Render();
 				win.renderGroups["render-group-textured"].Render(win.offscreenRenderTargets["offscreen-render-target-1"]);
 				// win.renderGroups["render-group-textured"].Render();
@@ -209,7 +211,6 @@ class Program
 				win.renderGroups["render-group-ui-unicolor"].Render();
 				// Console.WriteLine(string.Join(", ", win.renderGroups["render-group-ui-unicolor"].vertices));
 				// Console.WriteLine(string.Join(", ", win.renderGroups["render-group-ui-unicolor"].indices));
-				// GL.Enable(EnableCap.DepthTest);
 
 				// Render to default framebuffer - onscreen
 				GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
