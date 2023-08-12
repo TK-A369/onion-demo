@@ -155,11 +155,11 @@ class Program
 				}
 
 				// Set "camera" uniform in all shaders
-				// foreach (Shader shader in win.shaders.Values)
-				// {
-				// 	shader.Use();
-				// 	shader.SetUniformMat3f("camera", eyeMatrix);
-				// }
+				foreach (Shader shader in win.shaders.Values)
+				{
+					shader.Use();
+					shader.SetUniformMat3f("camera", eyeMatrix);
+				}
 				// win.shaders["shader-textured"].Use();
 				// win.shaders["shader-textured"].SetUniformMat3f("camera", eyeMatrix);
 
@@ -181,20 +181,6 @@ class Program
 					Int64 renderComponentId = gameManager.GetComponent(entity, typeof(RenderComponent));
 					RenderComponent renderComponent = (gameManager.components[renderComponentId] as RenderComponent) ?? throw new NullReferenceException();
 					renderDataList.AddRange(renderComponent.GetVertices());
-
-					// foreach (RenderData renderData in dataToRender)
-					// {
-					// 	RenderGroup renderGroup = win.renderGroups[renderData.renderGroup];
-					// 	int indexOffset = renderGroup.vertices.Count / renderGroup.shader.vertexDescriptorSize;
-					// 	foreach (float vertex in renderData.vertices)
-					// 	{
-					// 		renderGroup.vertices.Add(vertex);
-					// 	}
-					// 	foreach (int index in renderData.indices)
-					// 	{
-					// 		renderGroup.indices.Add(index + indexOffset);
-					// 	}
-					// }
 				}
 
 				// Optimize render data
@@ -224,15 +210,6 @@ class Program
 						GL.DepthFunc(DepthFunction.Less);
 				}
 
-				// win.renderGroups["render-group-basic"].Render();
-				// win.renderGroups["render-group-textured"].Render(win.offscreenRenderTargets["offscreen-render-target-1"]);
-				// // win.renderGroups["render-group-textured"].Render();
-				// GL.DepthFunc(DepthFunction.Lequal);
-				// win.renderGroups["render-group-ui-unicolor"].Render();
-				// GL.DepthFunc(DepthFunction.Less);
-				// Console.WriteLine(string.Join(", ", win.renderGroups["render-group-ui-unicolor"].vertices));
-				// Console.WriteLine(string.Join(", ", win.renderGroups["render-group-ui-unicolor"].indices));
-
 				// Render to default framebuffer - onscreen
 				GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
 				GL.Viewport(0, 0, win.width, win.height);
@@ -247,8 +224,6 @@ class Program
 				GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
 
 				win.Context.SwapBuffers();
-
-				Console.WriteLine("Render callback");
 			};
 
 			win.Run();
