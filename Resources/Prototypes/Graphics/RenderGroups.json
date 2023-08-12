@@ -7,13 +7,11 @@
     "render-group-textured": {
         "type": "RenderGroup",
         "name": "render-group-textured",
-        "shaderName": "shader-textured",
-        "textureAtlasName": "texture-atlas-1"
+        "shaderName": "shader-textured"
     },
     "render-group-ui-unicolor": {
         "type": "RenderGroup",
         "name": "render-group-ui-unicolor",
-        "shaderName": "shader-ui-unicolor",
-        "textureAtlasName": "texture-atlas-1"
+        "shaderName": "shader-ui-unicolor"
     }
 }

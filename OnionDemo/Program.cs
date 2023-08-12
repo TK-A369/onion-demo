@@ -174,33 +174,31 @@ class Program
 
 				win.drawSpritesEvent.Fire(null);
 
-				// Clear render groups' vertices data
-				foreach (RenderGroup renderGroup in win.renderGroups.Values)
-				{
-					renderGroup.vertices.Clear();
-					renderGroup.indices.Clear();
-				}
-
 				// Add vertices to appropriate render groups
+				List<RenderData> renderDataList = new();
 				foreach (Int64 entity in entitiesToRender)
 				{
 					Int64 renderComponentId = gameManager.GetComponent(entity, typeof(RenderComponent));
 					RenderComponent renderComponent = (gameManager.components[renderComponentId] as RenderComponent) ?? throw new NullReferenceException();
-					List<RenderData> dataToRender = renderComponent.GetVertices();
-					foreach (RenderData renderData in dataToRender)
-					{
-						RenderGroup renderGroup = win.renderGroups[renderData.renderGroup];
-						int indexOffset = renderGroup.vertices.Count / renderGroup.shader.vertexDescriptorSize;
-						foreach (float vertex in renderData.vertices)
-						{
-							renderGroup.vertices.Add(vertex);
-						}
-						foreach (int index in renderData.indices)
-						{
-							renderGroup.indices.Add(index + indexOffset);
-						}
-					}
+					renderDataList.AddRange(renderComponent.GetVertices());
+
+					// foreach (RenderData renderData in dataToRender)
+					// {
+					// 	RenderGroup renderGroup = win.renderGroups[renderData.renderGroup];
+					// 	int indexOffset = renderGroup.vertices.Count / renderGroup.shader.vertexDescriptorSize;
+					// 	foreach (float vertex in renderData.vertices)
+					// 	{
+					// 		renderGroup.vertices.Add(vertex);
+					// 	}
+					// 	foreach (int index in renderData.indices)
+					// 	{
+					// 		renderGroup.indices.Add(index + indexOffset);
+					// 	}
+					// }
 				}
+
+				// Optimize render data
+				List<RenderData> renderDataListOptimized = win.OptimizeRenderDataList(renderDataList);
 
 				// Render to default framebuffer - onscreen
 				GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
@@ -214,12 +212,24 @@ class Program
 
 				GL.Enable(EnableCap.DepthTest);
 
-				win.renderGroups["render-group-basic"].Render();
-				win.renderGroups["render-group-textured"].Render(win.offscreenRenderTargets["offscreen-render-target-1"]);
-				// win.renderGroups["render-group-textured"].Render();
-				GL.DepthFunc(DepthFunction.Lequal);
-				win.renderGroups["render-group-ui-unicolor"].Render();
-				GL.DepthFunc(DepthFunction.Less);
+				foreach (RenderData renderData in renderDataListOptimized)
+				{
+					OffscreenRenderTarget? target = null;
+					if (renderData.renderGroup == "render-group-textured")
+						target = win.offscreenRenderTargets["offscreen-render-target-1"];
+					if (renderData.renderGroup == "render-group-ui-unicolor")
+						GL.DepthFunc(DepthFunction.Lequal);
+					win.renderGroups[renderData.renderGroup].Render(renderData, target);
+					if (renderData.renderGroup == "render-group-ui-unicolor")
+						GL.DepthFunc(DepthFunction.Less);
+				}
+
+				// win.renderGroups["render-group-basic"].Render();
+				// win.renderGroups["render-group-textured"].Render(win.offscreenRenderTargets["offscreen-render-target-1"]);
+				// // win.renderGroups["render-group-textured"].Render();
+				// GL.DepthFunc(DepthFunction.Lequal);
+				// win.renderGroups["render-group-ui-unicolor"].Render();
+				// GL.DepthFunc(DepthFunction.Less);
 				// Console.WriteLine(string.Join(", ", win.renderGroups["render-group-ui-unicolor"].vertices));
 				// Console.WriteLine(string.Join(", ", win.renderGroups["render-group-ui-unicolor"].indices));
 
