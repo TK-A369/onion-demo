@@ -1,7 +1,13 @@
 {
-    "offscreen-render-target-1": {
+    "offscreen-render-target-world": {
         "type": "OffscreenRenderTarget",
-        "name": "offscreen-render-target-1",
+        "name": "offscreen-render-target-world",
+        "width": 256,
+        "height": 256
+    },
+    "offscreen-render-target-world-lighted": {
+        "type": "OffscreenRenderTarget",
+        "name": "offscreen-render-target-world-lighted",
         "width": 256,
         "height": 256
     }

@@ -119,22 +119,24 @@ class Program
 					entityId = entity1,
 					uiRootControl = IoCManager.CreateInstance<RootControl>(new object[] { })
 				};
-				Frame frame1 = IoCManager.CreateInstance<Frame>(new object[] { userInterfaceComponent.uiRootControl });
-				frame1.backgroundColor = new(1.0f, 1.0f, 1.0f, 0.5f);
-				frame1.Position = new(0, 0.1, 0, 0.2);
-				frame1.Size = new(0, 0.4, 0, 0.6);
-				userInterfaceComponent.uiRootControl.AddChild(frame1);
-				Frame frame2 = IoCManager.CreateInstance<Frame>(new object[] { userInterfaceComponent.uiRootControl });
-				frame2.backgroundColor = new(1.0f, 0.5f, 0.0f, 0.5f);
-				frame2.Position = new(50, 0.5, 20, 0.3);
-				frame2.Size = new(-50, 0.4, 0, 0.4);
-				userInterfaceComponent.uiRootControl.AddChild(frame2);
-				Frame frame3 = IoCManager.CreateInstance<Frame>(new object[] { frame1 });
-				frame3.backgroundColor = new(0.0f, 0.2f, 1.0f, 0.5f);
-				frame3.Position = new(-100, 1.0, -100, 1.0);
-				frame3.Size = new(50, 0.0, 50, 0.0);
-				frame1.AddChild(frame3);
+				// Frame frame1 = IoCManager.CreateInstance<Frame>(new object[] { userInterfaceComponent.uiRootControl });
+				// frame1.backgroundColor = new(1.0f, 1.0f, 1.0f, 0.5f);
+				// frame1.Position = new(0, 0.1, 0, 0.2);
+				// frame1.Size = new(0, 0.4, 0, 0.6);
+				// userInterfaceComponent.uiRootControl.AddChild(frame1);
+				// Frame frame2 = IoCManager.CreateInstance<Frame>(new object[] { userInterfaceComponent.uiRootControl });
+				// frame2.backgroundColor = new(1.0f, 0.5f, 0.0f, 0.5f);
+				// frame2.Position = new(50, 0.5, 20, 0.3);
+				// frame2.Size = new(-50, 0.4, 0, 0.4);
+				// userInterfaceComponent.uiRootControl.AddChild(frame2);
+				// Frame frame3 = IoCManager.CreateInstance<Frame>(new object[] { frame1 });
+				// frame3.backgroundColor = new(0.0f, 0.2f, 1.0f, 0.5f);
+				// frame3.Position = new(-100, 1.0, -100, 1.0);
+				// frame3.Size = new(50, 0.0, 50, 0.0);
+				// frame1.AddChild(frame3);
 				gameManager.AddComponent(userInterfaceComponent);
+
+				GL.Enable(EnableCap.Blend);
 			};
 			win.afterLoadEvent.RegisterSubscriber(afterLoadSubscriber);
 
@@ -194,7 +196,7 @@ class Program
 				GL.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 				GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-				win.offscreenRenderTargets["offscreen-render-target-1"].Clear();
+				win.offscreenRenderTargets["offscreen-render-target-world"].Clear();
 
 				GL.Enable(EnableCap.DepthTest);
 
@@ -202,13 +204,37 @@ class Program
 				{
 					OffscreenRenderTarget? target = null;
 					if (renderData.renderGroup == "render-group-textured")
-						target = win.offscreenRenderTargets["offscreen-render-target-1"];
+						target = win.offscreenRenderTargets["offscreen-render-target-world"];
 					if (renderData.renderGroup == "render-group-ui-unicolor")
 						GL.DepthFunc(DepthFunction.Lequal);
 					win.renderGroups[renderData.renderGroup].Render(renderData, target);
 					if (renderData.renderGroup == "render-group-ui-unicolor")
 						GL.DepthFunc(DepthFunction.Less);
 				}
+
+				// Lighting
+				win.offscreenRenderTargets["offscreen-render-target-world"].UseTexture(TextureUnit.Texture0);
+				win.textureAtlases["texture-atlas-lightmaps"].Use(TextureUnit.Texture1);
+				win.renderGroups["render-group-lighting"].shader.SetUniform1i("texture_world", 0);
+				win.renderGroups["render-group-lighting"].shader.SetUniform1i("texture_light", 1);
+				win.offscreenRenderTargets["offscreen-render-target-world-lighted"].Clear();
+				GL.BlendFunc(BlendingFactor.One, BlendingFactor.Zero);
+				win.renderGroups["render-group-lighting"].Render(new()
+				{
+					renderGroup = "render-group-lighting",
+					textureAtlasName = "texture-atlas-lightmaps",
+					vertices = new() {
+						-1, -1, 1, 1, 1, 1,
+						 1, -1, 1, 1, 1, 1,
+						 1,  1, 1, 1, 1, 1,
+						-1,  1, 1, 1, 1, 1
+					},
+					indices = new() {
+						0, 1, 2,
+						0, 2, 3
+					}
+				}, win.offscreenRenderTargets["offscreen-render-target-world-lighted"]);
+				GL.BlendFunc(BlendingFactor.One, BlendingFactor.Zero);
 
 				// Render to default framebuffer - onscreen
 				GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
@@ -218,7 +244,7 @@ class Program
 				GL.BindBuffer(BufferTarget.ArrayBuffer, win.vertexBufferObject);
 				win.shaders["shader-textured"].Use();
 				win.textureAtlases["texture-atlas-1"].Use();
-				win.offscreenRenderTargets["offscreen-render-target-1"].UseTexture();
+				win.offscreenRenderTargets["offscreen-render-target-world-lighted"].UseTexture();
 				// textures["floor-tile-1"].Use(TextureUnit.Texture0);
 				win.shaders["shader-textured"].SetUniform1i("texture0", 0);
 				GL.DrawArrays(PrimitiveType.Triangles, 0, 6);

@@ -15,5 +15,13 @@
 			"floor-tile-3": "Resources/Textures/floor-tile-1.png",
 			"floor-tile-4": "Resources/Textures/human-1.png"
 		}
+	},
+	"texture-atlas-lightmaps": {
+		"type": "TextureAtlas",
+		"name": "texture-atlas-lightmaps",
+		"size": 64,
+		"textures": {
+			"lightmap-radial-1": "Resources/Textures/lightmap-radial-1.png"
+		}
 	}
 }

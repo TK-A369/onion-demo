@@ -13,5 +13,10 @@
         "type": "RenderGroup",
         "name": "render-group-ui-unicolor",
         "shaderName": "shader-ui-unicolor"
+    },
+    "render-group-lighting": {
+        "type": "RenderGroup",
+        "name": "render-group-lighting",
+        "shaderName": "shader-lighting"
     }
 }
