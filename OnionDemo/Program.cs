@@ -213,10 +213,6 @@ class Program
 				}
 
 				// Lighting
-				win.offscreenRenderTargets["offscreen-render-target-world"].UseTexture(TextureUnit.Texture0);
-				win.textureAtlases["texture-atlas-lightmaps"].Use(TextureUnit.Texture1);
-				win.renderGroups["render-group-lighting"].shader.SetUniform1i("texture_world", 0);
-				win.renderGroups["render-group-lighting"].shader.SetUniform1i("texture_light", 1);
 				win.offscreenRenderTargets["offscreen-render-target-world-lighted"].Clear();
 				GL.BlendFunc(BlendingFactor.One, BlendingFactor.Zero);
 				win.renderGroups["render-group-lighting"].Render(new()
@@ -233,7 +229,17 @@ class Program
 						0, 1, 2,
 						0, 2, 3
 					}
-				}, win.offscreenRenderTargets["offscreen-render-target-world-lighted"]);
+				}, win.offscreenRenderTargets["offscreen-render-target-world-lighted"], new()
+				{
+					bindTextures = () =>
+					{
+						win.offscreenRenderTargets["offscreen-render-target-world"].UseTexture(TextureUnit.Texture0);
+						win.textureAtlases["texture-atlas-lightmaps"].Use(TextureUnit.Texture1);
+						win.renderGroups["render-group-lighting"].shader.Use();
+						win.renderGroups["render-group-lighting"].shader.SetUniform1i("texture_world", 0);
+						win.renderGroups["render-group-lighting"].shader.SetUniform1i("texture_light", 1);
+					}
+				});
 				GL.BlendFunc(BlendingFactor.One, BlendingFactor.Zero);
 
 				// Render to default framebuffer - onscreen
