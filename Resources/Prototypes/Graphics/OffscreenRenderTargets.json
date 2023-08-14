@@ -10,5 +10,11 @@
         "name": "offscreen-render-target-world-lighted",
         "width": 256,
         "height": 256
+    },
+    "offscreen-render-target-lights": {
+        "type": "OffscreenRenderTarget",
+        "name": "offscreen-render-target-lights",
+        "width": 256,
+        "height": 256
     }
 }

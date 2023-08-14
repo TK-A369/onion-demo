@@ -70,5 +70,21 @@
                 "valuesCount": 3
             }
         ]
+    },
+    "shader-lights": {
+        "type": "Shader",
+        "name": "shader-lights",
+        "vertexPath": "Resources/Shaders/shader_lights.vert",
+        "fragmentPath": "Resources/Shaders/shader_lights.frag",
+        "vertexAttributeDescriptors": [
+            {
+                "type": "Float",
+                "valuesCount": 3
+            },
+            {
+                "type": "Float",
+                "valuesCount": 2
+            }
+        ]
     }
 }

@@ -18,5 +18,10 @@
         "type": "RenderGroup",
         "name": "render-group-lighting",
         "shaderName": "shader-lighting"
+    },
+    "render-group-lights": {
+        "type": "RenderGroup",
+        "name": "render-group-lights",
+        "shaderName": "shader-lights"
     }
 }
