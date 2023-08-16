@@ -146,6 +146,8 @@ class Program
 				};
 				gameManager.AddComponent(lightSourceComponent);
 
+				gameManager.prototypeManager.SpawnEntityPrototype("sprite-with-light");
+
 				GL.Enable(EnableCap.Blend);
 			};
 			win.afterLoadEvent.RegisterSubscriber(afterLoadSubscriber);

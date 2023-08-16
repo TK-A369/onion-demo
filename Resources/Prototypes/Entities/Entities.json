@@ -1,0 +1,54 @@
+{
+    "sprite-with-light": {
+        "type": "Entity",
+        "name": "sprite-with-light",
+        "components": [
+            {
+                "type": "RenderComponent"
+            },
+            {
+                "type": "PositionComponent",
+                "position": {
+                    "x": 0.0,
+                    "y": 0.0
+                }
+            },
+            {
+                "type": "RotationComponent",
+                "rotation": 0.0
+            },
+            {
+                "type": "PhysicalBodyComponent",
+                "mass": 1.0,
+                "velocity": {
+                    "x": 0.0,
+                    "y": 0.001
+                }
+            },
+            {
+                "type": "RigidBodyComponent",
+                "momentOfInertia": 1.0,
+                "angularVelocity": 0.005
+            },
+            {
+                "type": "SpriteComponent",
+                "textureName": "human-1",
+                "size": {
+                    "x": 0.2,
+                    "y": 0.2
+                }
+            },
+            {
+                "type": "LightSourceComponent",
+                "intensity": 1.0,
+                "lightmapTextureName": "lightmap-radial-1",
+                "lightColor": {
+                    "r": 1.0,
+                    "g": 1.0,
+                    "b": 1.0
+                },
+                "size": 0.5
+            }
+        ]
+    }
+}
