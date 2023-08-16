@@ -5,15 +5,27 @@
         "width": 256,
         "height": 256
     },
+    "offscreen-render-target-lights": {
+        "type": "OffscreenRenderTarget",
+        "name": "offscreen-render-target-lights",
+        "width": 256,
+        "height": 256
+    },
+    "offscreen-render-target-shadows": {
+        "type": "OffscreenRenderTarget",
+        "name": "offscreen-render-target-shadows",
+        "width": 256,
+        "height": 256
+    },
     "offscreen-render-target-world-lighted": {
         "type": "OffscreenRenderTarget",
         "name": "offscreen-render-target-world-lighted",
         "width": 256,
         "height": 256
     },
-    "offscreen-render-target-lights": {
+    "offscreen-render-target-world-lighted-shadowed": {
         "type": "OffscreenRenderTarget",
-        "name": "offscreen-render-target-lights",
+        "name": "offscreen-render-target-world-lighted-shadowed",
         "width": 256,
         "height": 256
     }

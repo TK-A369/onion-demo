@@ -146,6 +146,17 @@ class Program
 				};
 				gameManager.AddComponent(lightSourceComponent);
 
+				ShadowCasterComponent shadowCasterComponent = new()
+				{
+					entityId = entity1,
+					transparency = 0.0f,
+					color = new(1.0f, 1.0f, 1.0f),
+					shadowsEndpoints = new() {
+						new(-0.2f, -0.1f), new(0.2f, -0.1f)
+					}
+				};
+				gameManager.AddComponent(shadowCasterComponent);
+
 				gameManager.prototypeManager.SpawnEntityPrototype("sprite-with-light");
 
 				GL.Enable(EnableCap.Blend);
@@ -157,15 +168,18 @@ class Program
 				// Determine eye location
 				HashSet<Int64> eyeComponentsIds = gameManager.QueryEntitiesOwningComponents(new HashSet<Type>() { typeof(EyeComponent) });
 				Mat<float> eyeMatrix;
+				Vec2<float> eyePosition;
 				if (eyeComponentsIds.Count >= 1)
 				{
 					Int64 eyeComponentId = eyeComponentsIds.First();
 					EyeComponent eyeComponent = (EyeComponent)gameManager.components[eyeComponentId];
 					eyeMatrix = eyeComponent.GetEyeMatrix();
+					eyePosition = eyeComponent.position.Cast<float>();
 				}
 				else
 				{
-					eyeMatrix = Mat<float>.RotationMatrix(0.0);
+					eyePosition = new(-0.2f, -0.2f);
+					eyeMatrix = eyePosition.ToMatTransform() * Mat<float>.RotationMatrix(0.0);
 				}
 
 				// Set "camera" uniform in all shaders
@@ -208,7 +222,7 @@ class Program
 				GL.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 				GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-				win.offscreenRenderTargets["offscreen-render-target-world"].Clear();
+				win.offscreenRenderTargets["offscreen-render-target-world"].Clear(0.0f, 0.6f, 0.0f);
 
 				GL.Enable(EnableCap.DepthTest);
 
@@ -227,10 +241,87 @@ class Program
 				// Lighting
 				win.offscreenRenderTargets["offscreen-render-target-world-lighted"].Clear();
 
+				// Shadow casters
+				HashSet<Int64> entitiesWithShadowCasterComponent =
+					gameManager.QueryEntitiesOwningComponents(new HashSet<Type>() { typeof(ShadowCasterComponent) });
+
+				RenderData getShadowsRenderData(Vec2<float> cameraPosition)
+				{
+					List<RenderData> renderDataList = new();
+					foreach (Int64 entity in entitiesWithShadowCasterComponent)
+					{
+						ShadowCasterEntitySystem shadowCasterEntitySystem =
+							gameManager.GetEntitySystem<ShadowCasterEntitySystem>(entity);
+						renderDataList.Add(shadowCasterEntitySystem.GetShadowsRenderData(cameraPosition));
+					}
+					if (renderDataList.Count > 0)
+						return win.OptimizeRenderDataList(renderDataList).First();
+					return new() { vertices = new() { }, indices = new() { }, renderGroup = "render-group-shadows" };
+				}
+
+				// Lights from sources
+				HashSet<Int64> entitiesWithLightSourceComponent =
+					gameManager.QueryEntitiesOwningComponents(new HashSet<Type>() { typeof(LightSourceComponent) });
+				foreach (Int64 entity in entitiesWithLightSourceComponent)
+				{
+					LightSourceComponent lightSourceComponent =
+						(LightSourceComponent)gameManager.components[gameManager.GetComponent(entity, typeof(LightSourceComponent))];
+					PositionComponent positionComponent =
+						(PositionComponent)gameManager.components[gameManager.GetComponent(entity, typeof(PositionComponent))];
+
+					win.offscreenRenderTargets["offscreen-render-target-lights"].Clear(0.0f, 0.0f, 0.0f);
+					win.offscreenRenderTargets["offscreen-render-target-shadows"].Clear(1.0f, 1.0f, 1.0f);
+
+					RenderData lightRenderData = gameManager.GetEntitySystem<LightSourceEntitySystem>(entity).GetLightRenderData();
+					GL.BlendFunc(BlendingFactor.One, BlendingFactor.Zero); // Default blending - override
+					GL.DepthFunc(DepthFunction.Lequal);
+					win.renderGroups["render-group-lights"].Render(lightRenderData, win.offscreenRenderTargets["offscreen-render-target-lights"]);
+
+					GL.BlendFunc(BlendingFactor.One, BlendingFactor.Zero); // Default blending - override
+					win.renderGroups["render-group-shadows"].Render(getShadowsRenderData(positionComponent.position.Cast<float>()), win.offscreenRenderTargets["offscreen-render-target-shadows"]);
+					GL.DepthFunc(DepthFunction.Less);
+
+					GL.BlendFunc(BlendingFactor.One, BlendingFactor.One); // Additive blending
+					GL.Disable(EnableCap.DepthTest);
+					win.renderGroups["render-group-lighting"].Render(new()
+					{
+						renderGroup = "render-group-lighting",
+						textureAtlasName = "texture-atlas-lightmaps",
+						vertices = new() {
+						-1, -1, lightSourceComponent.intensity, lightSourceComponent.lightColor.r, lightSourceComponent.lightColor.g, lightSourceComponent.lightColor.b,
+						 1, -1, lightSourceComponent.intensity, lightSourceComponent.lightColor.r, lightSourceComponent.lightColor.g, lightSourceComponent.lightColor.b,
+						 1,  1, lightSourceComponent.intensity, lightSourceComponent.lightColor.r, lightSourceComponent.lightColor.g, lightSourceComponent.lightColor.b,
+						-1,  1, lightSourceComponent.intensity, lightSourceComponent.lightColor.r, lightSourceComponent.lightColor.g, lightSourceComponent.lightColor.b
+					},
+						indices = new() {
+						0, 1, 2,
+						0, 2, 3
+					}
+					}, win.offscreenRenderTargets["offscreen-render-target-world-lighted"], new()
+					{
+						bindTextures = () =>
+						{
+							win.offscreenRenderTargets["offscreen-render-target-world"].UseTexture(TextureUnit.Texture0);
+							win.offscreenRenderTargets["offscreen-render-target-lights"].UseTexture(TextureUnit.Texture1);
+							win.offscreenRenderTargets["offscreen-render-target-shadows"].UseTexture(TextureUnit.Texture2);
+							win.renderGroups["render-group-lighting"].shader.Use();
+							win.renderGroups["render-group-lighting"].shader.SetUniform1i("texture_world", 0);
+							win.renderGroups["render-group-lighting"].shader.SetUniform1i("texture_light", 1);
+							win.renderGroups["render-group-lighting"].shader.SetUniform1i("texture_shadows", 2);
+						}
+					});
+					GL.Enable(EnableCap.DepthTest);
+				}
+
 				// Ambient light
-				float ambientLight = 0.15f;
+				float ambientLight = 0.4f;
+				win.offscreenRenderTargets["offscreen-render-target-world-lighted-shadowed"].Clear();
 				win.offscreenRenderTargets["offscreen-render-target-lights"].Clear(ambientLight, ambientLight, ambientLight);
-				GL.BlendFunc(BlendingFactor.One, BlendingFactor.One); // Additive blending
+				win.offscreenRenderTargets["offscreen-render-target-shadows"].Clear(1.0f, 1.0f, 1.0f);
+				GL.BlendFunc(BlendingFactor.One, BlendingFactor.Zero); // Default blending - override
+				GL.DepthFunc(DepthFunction.Lequal);
+				win.renderGroups["render-group-shadows"].Render(getShadowsRenderData(eyePosition), win.offscreenRenderTargets["offscreen-render-target-shadows"]);
+				GL.DepthFunc(DepthFunction.Less);
 				win.renderGroups["render-group-lighting"].Render(new()
 				{
 					renderGroup = "render-group-lighting",
@@ -245,62 +336,19 @@ class Program
 						0, 1, 2,
 						0, 2, 3
 					}
-				}, win.offscreenRenderTargets["offscreen-render-target-world-lighted"], new()
+				}, win.offscreenRenderTargets["offscreen-render-target-world-lighted-shadowed"], new()
 				{
 					bindTextures = () =>
 					{
-						win.offscreenRenderTargets["offscreen-render-target-world"].UseTexture(TextureUnit.Texture0);
+						win.offscreenRenderTargets["offscreen-render-target-world-lighted"].UseTexture(TextureUnit.Texture0);
 						win.offscreenRenderTargets["offscreen-render-target-lights"].UseTexture(TextureUnit.Texture1);
+						win.offscreenRenderTargets["offscreen-render-target-shadows"].UseTexture(TextureUnit.Texture2);
 						win.renderGroups["render-group-lighting"].shader.Use();
 						win.renderGroups["render-group-lighting"].shader.SetUniform1i("texture_world", 0);
 						win.renderGroups["render-group-lighting"].shader.SetUniform1i("texture_light", 1);
+						win.renderGroups["render-group-lighting"].shader.SetUniform1i("texture_shadows", 2);
 					}
 				});
-
-				// Lights from sources
-				HashSet<Int64> entitiesWithLightSourceComponent = gameManager.QueryEntitiesOwningComponents(new HashSet<Type>() { typeof(LightSourceComponent) });
-				foreach (Int64 entity in entitiesWithLightSourceComponent)
-				{
-					LightSourceComponent lightSourceComponent =
-						(LightSourceComponent)gameManager.components[gameManager.GetComponent(entity, typeof(LightSourceComponent))];
-
-					win.offscreenRenderTargets["offscreen-render-target-lights"].Clear(0.0f, 0.0f, 0.0f);
-
-					RenderData lightRenderData = gameManager.GetEntitySystem<LightSourceEntitySystem>(entity).GetLightRenderData();
-					GL.BlendFunc(BlendingFactor.One, BlendingFactor.Zero); // Default blending - override
-					GL.DepthFunc(DepthFunction.Lequal);
-					win.renderGroups["render-group-lights"].Render(lightRenderData, win.offscreenRenderTargets["offscreen-render-target-lights"]);
-					GL.DepthFunc(DepthFunction.Less);
-
-					GL.BlendFunc(BlendingFactor.One, BlendingFactor.One); // Additive blending
-					GL.Disable(EnableCap.DepthTest);
-					win.renderGroups["render-group-lighting"].Render(new()
-					{
-						renderGroup = "render-group-lighting",
-						textureAtlasName = "texture-atlas-lightmaps",
-						vertices = new() {
-						-1, -1, 1, lightSourceComponent.lightColor.r, lightSourceComponent.lightColor.g, lightSourceComponent.lightColor.b,
-						 1, -1, 1, lightSourceComponent.lightColor.r, lightSourceComponent.lightColor.g, lightSourceComponent.lightColor.b,
-						 1,  1, 1, lightSourceComponent.lightColor.r, lightSourceComponent.lightColor.g, lightSourceComponent.lightColor.b,
-						-1,  1, 1, lightSourceComponent.lightColor.r, lightSourceComponent.lightColor.g, lightSourceComponent.lightColor.b
-					},
-						indices = new() {
-						0, 1, 2,
-						0, 2, 3
-					}
-					}, win.offscreenRenderTargets["offscreen-render-target-world-lighted"], new()
-					{
-						bindTextures = () =>
-						{
-							win.offscreenRenderTargets["offscreen-render-target-world"].UseTexture(TextureUnit.Texture0);
-							win.offscreenRenderTargets["offscreen-render-target-lights"].UseTexture(TextureUnit.Texture1);
-							win.renderGroups["render-group-lighting"].shader.Use();
-							win.renderGroups["render-group-lighting"].shader.SetUniform1i("texture_world", 0);
-							win.renderGroups["render-group-lighting"].shader.SetUniform1i("texture_light", 1);
-						}
-					});
-					GL.Enable(EnableCap.DepthTest);
-				}
 
 				GL.BlendFunc(BlendingFactor.One, BlendingFactor.Zero); // Default blending - override
 
@@ -312,7 +360,7 @@ class Program
 				GL.BindBuffer(BufferTarget.ArrayBuffer, win.vertexBufferObject);
 				win.shaders["shader-textured"].Use();
 				win.textureAtlases["texture-atlas-1"].Use();
-				win.offscreenRenderTargets["offscreen-render-target-world-lighted"].UseTexture();
+				win.offscreenRenderTargets["offscreen-render-target-world-lighted-shadowed"].UseTexture();
 				// win.offscreenRenderTargets["offscreen-render-target-lights"].UseTexture();
 				// textures["floor-tile-1"].Use(TextureUnit.Texture0);
 				win.shaders["shader-textured"].SetUniform1i("texture0", 0);

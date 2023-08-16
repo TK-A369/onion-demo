@@ -86,5 +86,17 @@
                 "valuesCount": 2
             }
         ]
+    },
+    "shader-shadows": {
+        "type": "Shader",
+        "name": "shader-shadows",
+        "vertexPath": "Resources/Shaders/shader_shadows.vert",
+        "fragmentPath": "Resources/Shaders/shader_shadows.frag",
+        "vertexAttributeDescriptors": [
+            {
+                "type": "Float",
+                "valuesCount": 2
+            }
+        ]
     }
 }
