@@ -286,7 +286,7 @@ class Program
 					win.renderGroups["render-group-lighting"].Render(new()
 					{
 						renderGroup = "render-group-lighting",
-						textureAtlasName = "texture-atlas-lightmaps",
+						textureName = "texture-atlas-lightmaps",
 						vertices = new() {
 						-1, -1, lightSourceComponent.intensity, lightSourceComponent.lightColor.r, lightSourceComponent.lightColor.g, lightSourceComponent.lightColor.b,
 						 1, -1, lightSourceComponent.intensity, lightSourceComponent.lightColor.r, lightSourceComponent.lightColor.g, lightSourceComponent.lightColor.b,
@@ -325,7 +325,7 @@ class Program
 				win.renderGroups["render-group-lighting"].Render(new()
 				{
 					renderGroup = "render-group-lighting",
-					textureAtlasName = "texture-atlas-lightmaps",
+					textureName = "texture-atlas-lightmaps",
 					vertices = new() {
 						-1, -1, 1, 1, 1, 1,
 						 1, -1, 1, 1, 1, 1,

@@ -51,6 +51,22 @@
             }
         ]
     },
+    "shader-ui-textured": {
+        "type": "Shader",
+        "name": "shader-ui-textured",
+        "vertexPath": "Resources/Shaders/shader_ui_textured.vert",
+        "fragmentPath": "Resources/Shaders/shader_ui_textured.frag",
+        "vertexAttributeDescriptors": [
+            {
+                "type": "Float",
+                "valuesCount": 2
+            },
+            {
+                "type": "Float",
+                "valuesCount": 2
+            }
+        ]
+    },
     "shader-lighting": {
         "type": "Shader",
         "name": "shader-lighting",
